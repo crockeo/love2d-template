@@ -22,7 +22,7 @@
 
 (fn pop-mode []
   "Removes the top-most mode from the stack."
-  (let [mode (table.remove move-stack)]
+  (let [mode (table.remove mode-stack)]
     (when mode.unload
       (mode.unload))))
 
