@@ -108,11 +108,6 @@
                  {:key key
                   :scancode scancode}))
 
-(fn love.load [arg unfiltered-arg]
-  (call-on-modes :load
-                 {:arg arg
-                  :unfiltered-arg unfiltered-arg}))
-
 (fn love.lowmemory []
   (call-on-modes :lowmemory
                  {}))

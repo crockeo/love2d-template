@@ -10,8 +10,8 @@
   "Adds a mode onto the stack. Calls the initialization function with any
   parameters beyond that of the mode's name."
   (let [mode (. modes name)]
-    (when mode.init
-      (mode.init (unpack [...])))
+    (when mode.load
+      (mode.load (unpack [...])))
     (table.insert mode-stack mode)))
 
 (fn set-mode [name ...]
@@ -22,7 +22,9 @@
 
 (fn pop-mode []
   "Removes the top-most mode from the stack."
-  (table.remove mode-stack))
+  (let [mode (table.remove move-stack)]
+    (when mode.unload
+      (mode.unload))))
 
 {:get-mode-stack get-mode-stack
 
