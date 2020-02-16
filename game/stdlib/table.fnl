@@ -1,4 +1,4 @@
-(fn call-on [collection fn-name params require-true reverse]
+(fn table-call-on [collection fn-name params require-true reverse]
   "Calls a function, described by fn-name, on a collection of tables. When
   `require-true` is truthy, this function will stop upon reaching a function
   that exists and returns false. When `reverse` is truthy, this function will
@@ -26,13 +26,13 @@
 
     (set i (+ i dir))))
 
-(fn print [t]
+(fn table-print [t]
   "Prints out a table's key/value pairs. Works both on general and numeric
   tables."
   (each [key value (pairs t)]
     (print key value)))
 
-(fn union [...]
+(fn table-union [...]
   "Returns the union of 1 or more tables. If multiple tables share the same key,
   the value from the late-most table with that key is used."
   (local union {})
@@ -43,6 +43,6 @@
 
   union)
 
-{:call-on call-on
- :print-table print-table
- :union-tables union-tables}
+{:call-on table-call-on
+ :print table-print
+ :union table-union}
