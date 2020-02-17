@@ -1,4 +1,64 @@
+(local ecs (require "game.ecs"))
+(local ecs-component (require "game.ecs.component"))
+(local ecs-entity (require "game.ecs.entity"))
+(local ecs-system (require "game.ecs.system"))
+
+(var ecs-instance nil)
+
+(fn get-axis [neg-key pos-key]
+  (match [(love.input.isDown neg-key) (love.input.isDown pos-key)]
+    [false false] 0
+    [true false] -1
+    [false true] 1
+    [true true] 0))
+
+(local
+ position-component
+ (ecs-component.new :position
+                    {:x 0
+                     :y 0
+
+                     :update
+                     (fn [this params]
+                       (tset this
+                             :x
+                             (+ this.x
+                                (* 100
+                                   params.dt
+                                   (get-axis "a" "d"))))
+
+                       (tset this
+                             :y
+                             (+ this.y
+                                (* 100
+                                   params.dt
+                                   (get-axis "w" "s")))))}))
+
+(local
+ render-component
+ (ecs-component.new :render
+                    {:draw
+                     (fn [this params]
+                       (let [position (params.parent.get-component :position)]
+                         (love.graphics.circle "fill"
+                                               (position.get-x)
+                                               (position.get-y)
+                                               16)))}))
+
+(fn example-load []
+  (set ecs-instance (ecs.new))
+
+  (let [player (ecs-instance:add-entity)]
+    (player:add-component position-component)
+    (player:add-component render-component)))
+
 (fn example-draw []
+  (ecs-instance:call-on-entities :draw)
   (love.graphics.printf "Hello world" 0 300 800 "center"))
 
-{:draw example-draw}
+(fn example-update [params]
+  (ecs-instance:call-on-entities :update params))
+
+{:load example-load
+ :draw example-draw
+ :update example-update}
