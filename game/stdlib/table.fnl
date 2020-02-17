@@ -1,8 +1,23 @@
-(fn table-call-on [collection fn-name params require-true reverse]
+(fn table-to-sequential [collection]
+  "Converts an arbitrary collection into a sequential collection."
+  (local seq [])
+  (each [_ value (pairs collection)]
+    (table.insert seq value))
+  seq)
+
+(fn table-call-on [raw-collection fn-name raw-params require-true reverse]
   "Calls a function, described by fn-name, on a collection of tables. When
   `require-true` is truthy, this function will stop upon reaching a function
   that exists and returns false. When `reverse` is truthy, this function will
   iterate backwards"
+
+  ;; TODO: Figure out how to make this conditional. I.e. if the table is already
+  ;;       sequential, then don't do this conversion.
+  (local collection (table-to-sequential raw-collection))
+
+  (local params (if raw-params
+                    raw-params
+                    []))
 
   (local dir (if reverse
                  -1
@@ -20,8 +35,8 @@
               (<= i (length collection)))
     (let [callback (. collection i fn-name)]
       (when (and callback
-                 require-true
-                 (not (callback (unpack params))))
+                 (not (callback (unpack params)))
+                 require-true)
         (set done true)))
 
     (set i (+ i dir))))
@@ -43,6 +58,7 @@
 
   union)
 
-{:call-on table-call-on
+{:to-sequential table-to-sequential
+ :call-on table-call-on
  :print table-print
  :union table-union}
