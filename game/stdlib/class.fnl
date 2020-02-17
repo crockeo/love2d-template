@@ -36,7 +36,7 @@
             (tset instance key value))
 
           (when instance.new
-            (instance.new instance(unpack [...])))
+            (instance.new instance (unpack [...])))
 
           instance)})
 
