@@ -9,63 +9,40 @@
 (local stdlib-class (require "game.stdlib.class"))
 (local stdlib-table (require "game.stdlib.table"))
 
+;; Constructing the static entity template, to which we'll generate and add
+;; delegate functions.
+(local entity-template
+       {:new
+        (fn [this]
+          (tset this :components {})
+          (tset this :uuid (lume.uuid)))
 
+        :add-component
+        (fn [this component]
+          "Adds a component to the entity."
+          (tset this.components
+                component.name component))
 
-;; ;; Defining the top-level entity template.
-;; (local entity-template
-;;        {:components {}
-;;         :uuid (lume.uuid)
+        :get-component
+        (fn [this component-name]
+          "Retrieves a component from the entity. If no component by the
+          provided name exists, get-component returns nil instead."
+          (. this.components component-name))})
 
-;;         :add-component add-component
-;;         :get-component get-component})
-
-;; ;; Constructing each of the delegate functions.
-;; (fn make-callback-delegate [callback]
-;;   (fn [this params]
-;;     (stdlib-table.call-on this.components
-;;                           callback
-;;                           (stdlib-table.union params
-;;                                               {:parent this}))))
-
-;; (each [_ callback (ipairs callbacks)]
-;;   (tset entity-template
-;;         callback
-;;         (make-callback-delegate callback)))
-
-;; (stdlib-class.make entity-template)
-
-(stdlib-class.make
- {:components {}
-  :uuid nil
-
-  :new
-  (fn [this]
-    (tset this :uuid (lume.uuid)))
-
-  :add-component
-  (fn [this component]
-    "Adds a component to the entity."
-    (tset this.components
-          component.name component))
-
-  :get-component
-  (fn [this component-name]
-    "Retrieves a component from the entity. If no component by the provided name
-    exists, get-component returns nil instead."
-    (. this.components component-name))
-
-  :draw
+;; Generating and adding delegate functions.
+(fn construct-delegate [callback]
+  "Constructs a delegate function for a Love2D callback that calls the same
+  callback on each of this entity's components."
   (fn [this params]
     (stdlib-table.call-on this.components
-                          :draw
+                          callback
                           {:params [(stdlib-table.union params
                                                         {:parent this})]
-                           :is-class true}))
+                           :is-class true})))
 
-  :update
-  (fn [this params]
-    (stdlib-table.call-on this.components
-                          :update
-                          {:params [(stdlib-table.union params
-                                                        {:parent this})]
-                           :is-class true}))})
+(each [_ callback (ipairs callbacks)]
+  (tset entity-template
+        callback
+        (construct-delegate callback)))
+
+(stdlib-class.make entity-template)

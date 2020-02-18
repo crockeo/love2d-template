@@ -9,8 +9,10 @@
 (local stdlib-table (require "game.stdlib.table"))
 
 (stdlib-class.make
- {:entities {}
-  :systems {}
+ {:new
+  (fn [this]
+    (tset this :entities {})
+    (tset this :systems {}))
 
   :add-entity
   (fn [this]
