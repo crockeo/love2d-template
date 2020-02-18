@@ -5,26 +5,35 @@
     (table.insert seq value))
   seq)
 
-(fn table-call-on [raw-collection fn-name raw-params require-true reverse]
-  "Calls a function, described by fn-name, on a collection of tables. When
-  `require-true` is truthy, this function will stop upon reaching a function
-  that exists and returns false. When `reverse` is truthy, this function will
-  iterate backwards"
+(fn table-call-on [raw-collection fn-name raw-optional]
+  "Calls a function, described by fn-name, on a collection of tables. The
+  function accepts optional arugments in the form of `optional`:
+
+    - optional.require-true, when truthy, the function will stop upon reaching
+      a function that exists and returns false.
+
+    - optional.reverse, when truthy, the function will iterate in reverse order
+
+    - optional.is-class, when truthy, the function will evaluate methods as
+      `table:method` instead of `table.method`."
 
   ;; TODO: Figure out how to make this conditional. I.e. if the table is already
   ;;       sequential, then don't do this conversion.
   (local collection (table-to-sequential raw-collection))
+  (local optional (if raw-optional
+                      raw-optional
+                      {}))
 
-  (local params (if raw-params
-                    raw-params
+  (local params (if optional.params
+                    optional.params
                     []))
 
-  (local dir (if reverse
+  (local dir (if optional.reverse
                  -1
                  1))
 
   (var done false)
-  (var i (if reverse
+  (var i (if optional.reverse
              (length collection)
              1))
 
@@ -34,10 +43,11 @@
               (>= i 1)
               (<= i (length collection)))
     (let [callback (. collection i fn-name)]
-      (when (and callback
-                 (not (callback (unpack params)))
-                 require-true)
-        (set done true)))
+      (when callback
+        (when (not (if optional.is-class
+                       (callback (. collection i) (unpack params))
+                       (callback (unpack params))))
+          (set done true))))
 
     (set i (+ i dir))))
 

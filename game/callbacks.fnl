@@ -5,8 +5,6 @@
 [:directorydropped
  :displayrotated
  :draw
- :errhand
- :errorhandler
  :filedropped
  :focus
  :gamepadaxis

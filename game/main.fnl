@@ -8,9 +8,9 @@
   modes."
   (stdlib-table.call-on (modes.get-mode-stack)
                         fn-name
-                        params
-                        true
-                        reverse))
+                        {:params [params]
+                         :require-true true
+                         :reverse reverse}))
 
 ;; Each of the functions in this section correspond to a callback provided by
 ;; Love2D. They are all passed to the active mode(s) via call-on-modes above.
@@ -20,6 +20,7 @@
 ;; mode's argument list.
 ;;
 ;; Exceptions:
+;;   - love.errorhandler
 ;;   - love.run
 ;;   - love.textedit
 ;;   - love.textinput
@@ -38,10 +39,6 @@
   (call-on-modes :draw
                  {}
                  true))
-
-(fn love.errorhandler [msg]
-  (call-on-modes :errorhandler
-                 {:msg msg}))
 
 (fn love.filedropped [file]
   (call-on-modes :filedropped

@@ -42,4 +42,5 @@
   (fn [this callback params]
     (stdlib-table.call-on this.entities
                           callback
-                          params))})
+                          {:params [params]
+                           :is-class true}))})

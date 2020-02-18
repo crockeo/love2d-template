@@ -6,7 +6,7 @@
 (var ecs-instance nil)
 
 (fn get-axis [neg-key pos-key]
-  (match [(love.input.isDown neg-key) (love.input.isDown pos-key)]
+  (match [(love.keyboard.isDown neg-key) (love.keyboard.isDown pos-key)]
     [false false] 0
     [true false] -1
     [false true] 1
@@ -15,8 +15,11 @@
 (local
  position-component
  (ecs-component.new :position
-                    {:x 0
-                     :y 0
+                    {:x 300
+                     :y 300
+
+                     :get-x (fn [this] this.x)
+                     :get-y (fn [this] this.y)
 
                      :update
                      (fn [this params]
@@ -39,10 +42,10 @@
  (ecs-component.new :render
                     {:draw
                      (fn [this params]
-                       (let [position (params.parent.get-component :position)]
+                       (let [position (params.parent:get-component :position)]
                          (love.graphics.circle "fill"
-                                               (position.get-x)
-                                               (position.get-y)
+                                               (position:get-x)
+                                               (position:get-y)
                                                16)))}))
 
 (fn example-load []
@@ -52,8 +55,8 @@
     (player:add-component position-component)
     (player:add-component render-component)))
 
-(fn example-draw []
-  (ecs-instance:call-on-entities :draw)
+(fn example-draw [params]
+  (ecs-instance:call-on-entities :draw params)
   (love.graphics.printf "Hello world" 0 300 800 "center"))
 
 (fn example-update [params]
